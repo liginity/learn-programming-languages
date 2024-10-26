@@ -21,7 +21,7 @@ namespace std {
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
  
     // construct/copy/destroy:
-    explicit vector(const Allocator& = Allocator());
+    vector();
     explicit vector(size_type n);
     vector(size_type n, const T& value,const Allocator& = Allocator());
     template <class InputIterator>
