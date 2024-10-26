@@ -40,7 +40,7 @@ class vector {
     vector(vector&&);
     vector(const vector&, const Allocator&);
     vector(vector&&, const Allocator&);
-    vector(initializer_list<T>, const Allocator& = Allocator());
+    vector(std::initializer_list<T>, const Allocator& = Allocator());
 
     ~vector();
     vector<T, Allocator>& operator=(const vector<T, Allocator>& x);
