@@ -10,6 +10,7 @@ namespace detail {
   {
   public:
     // types
+    // clang-format off
     using value_type             = T;
     using allocator_type         = Allocator;
     using pointer                = typename allocator_traits<Allocator>::pointer;
@@ -22,6 +23,7 @@ namespace detail {
     using const_iterator         = /* implementation-defined */;
     using reverse_iterator       = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+    // clang-format on
  
     // construct/copy/destroy:
     explicit vector(const Allocator& = Allocator());
