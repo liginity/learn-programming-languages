@@ -53,8 +53,8 @@ namespace std {
     reverse_iterator        rend() noexcept;
     const_reverse_iterator  rend() const noexcept;
  
-    const_iterator          cbegin() noexcept;
-    const_iterator          cend() noexcept;
+    const_iterator          cbegin() const noexcept;
+    const_iterator          cend() const noexcept;
     const_reverse_iterator  crbegin() const noexcept;
     const_reverse_iterator  crend() const noexcept;
  
@@ -80,7 +80,7 @@ namespace std {
  
     //data access
     T*       data() noexcept;
-    const T* data() noexcept;
+    const T* data() const noexcept;
  
     // modifiers:
     template <class... Args> void emplace_back(Args&&... args);
@@ -101,6 +101,8 @@ namespace std {
     iterator erase(const_iterator first, const_iterator last);
     void     swap(vector<T,Allocator>&);
     void     clear() noexcept;
+};
+
 }
 ```
 
