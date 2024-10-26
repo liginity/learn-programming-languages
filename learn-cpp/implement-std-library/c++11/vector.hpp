@@ -1,25 +1,30 @@
 #ifndef LEARN_CPP_CXX11_VECTOR_HPP
 #define LEARN_CPP_CXX11_VECTOR_HPP
 
+#include <cstddef>
+#include <initializer_list>
+#include <memory>
+#include <type_traits>
+
 namespace learn_cpp {
 
 namespace detail {
 
-template <class T, class Allocator = allocator<T>>
+template <class T, class Allocator = std::allocator<T>>
 class vector {
    public:
     // types
     // clang-format off
     using value_type             = T;
     using allocator_type         = Allocator;
-    using pointer                = typename allocator_traits<Allocator>::pointer;
-    using const_pointer          = typename allocator_traits<Allocator>::const_pointer;
+    using pointer                = typename std::allocator_traits<Allocator>::pointer;
+    using const_pointer          = typename std::allocator_traits<Allocator>::const_pointer;
     using reference              = value_type&;
     using const_reference        = const value_type&;
-    using size_type              = /* implementation-defined */;
-    using difference_type        = /* implementation-defined */;
-    using iterator               = /* implementation-defined */;
-    using const_iterator         = /* implementation-defined */;
+    using size_type              = std::size_t;                        /* implementation-defined */
+    using difference_type        = std::make_signed<size_type>::type;  /* implementation-defined */
+    using iterator               = T*;                                 /* implementation-defined */
+    using const_iterator         = const T*;                           /* implementation-defined */
     using reverse_iterator       = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     // clang-format on
@@ -40,11 +45,11 @@ class vector {
     ~vector();
     vector<T, Allocator>& operator=(const vector<T, Allocator>& x);
     vector<T, Allocator>& operator=(vector<T, Allocator>&& x);
-    vector& operator=(initializer_list<T>);
+    vector& operator=(std::initializer_list<T>);
     template <class InputIterator>
     void assign(InputIterator first, InputIterator last);
     void assign(size_type n, const T& t);
-    void assign(initializer_list<T>);
+    void assign(std::initializer_list<T>);
     allocator_type get_allocator() const noexcept;
 
     // iterators:
@@ -102,7 +107,7 @@ class vector {
     template <class InputIterator>
     iterator insert(const_iterator position, InputIterator first,
                     InputIterator last);
-    iterator insert(const_iterator position, initializer_list<T>);
+    iterator insert(const_iterator position, std::initializer_list<T>);
 
     iterator erase(const_iterator position);
     iterator erase(const_iterator first, const_iterator last);
