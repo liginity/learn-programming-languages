@@ -115,6 +115,10 @@ class vector {
     void clear() noexcept;
 };
 
+// Add an alias Vector for vector.
+template <class T, class Allocator = std::allocator<T>>
+using Vector = vector<T, Allocator>;
+
 }  // namespace detail
 }  // namespace learn_cpp
 #endif
