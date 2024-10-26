@@ -105,4 +105,5 @@ namespace std {
 ```
 
 > NOTE This class template definition is combined from several versions on the https://en.cppreference.com/w/cpp/header/vector page.
+>
 > I hope it complies with C++11.
