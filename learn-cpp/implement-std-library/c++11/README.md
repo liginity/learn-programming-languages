@@ -2,15 +2,15 @@ Class template `std::vector`, from <https://en.cppreference.com/w/cpp/header/vec
 
 ``` cpp
 namespace std {
-  template<class T, class Allocator = allocator<T>>
+  template<class T, class Allocator = std::allocator<T>>
   class vector
   {
   public:
     // types
     using value_type             = T;
     using allocator_type         = Allocator;
-    using pointer                = typename allocator_traits<Allocator>::pointer;
-    using const_pointer          = typename allocator_traits<Allocator>::const_pointer;
+    using pointer                = typename std::allocator_traits<Allocator>::pointer;
+    using const_pointer          = typename std::allocator_traits<Allocator>::const_pointer;
     using reference              = value_type&;
     using const_reference        = const value_type&;
     using size_type              = /* implementation-defined */;
@@ -30,16 +30,16 @@ namespace std {
     vector(vector&&);
     vector(const vector&, const Allocator&);
     vector(vector&&, const Allocator&);
-    vector(initializer_list<T>, const Allocator& = Allocator());
+    vector(std::initializer_list<T>, const Allocator& = Allocator());
  
     ~vector();
     vector<T,Allocator>& operator=(const vector<T,Allocator>& x);
     vector<T,Allocator>& operator=(vector<T,Allocator>&& x);
-    vector& operator=(initializer_list<T>);
+    vector& operator=(std::initializer_list<T>);
     template <class InputIterator>
         void assign(InputIterator first, InputIterator last);
     void assign(size_type n, const T& t);
-    void assign(initializer_list<T>);
+    void assign(std::initializer_list<T>);
     allocator_type get_allocator() const noexcept;
  
     // iterators:
@@ -95,7 +95,7 @@ namespace std {
     template <class InputIterator>
         iterator insert (const_iterator position, InputIterator first, 
                          InputIterator last);
-    iterator insert(const_iterator position, initializer_list<T>);
+    iterator insert(const_iterator position, std::initializer_list<T>);
  
     iterator erase(const_iterator position);
     iterator erase(const_iterator first, const_iterator last);
