@@ -26,6 +26,9 @@ public:
 #endif
 
     // constructors:
+    /*
+    clang-format off
+
     constexpr shared_ptr() noexcept;
     template<class Y> explicit shared_ptr(Y* p);
     template<class Y, class D> shared_ptr(Y* p, D d);
@@ -42,10 +45,16 @@ public:
     template <class Y, class D> shared_ptr(unique_ptr<Y, D>&& r);
     shared_ptr(std::nullptr_t) : shared_ptr() { }
 
+    clang-format on
+    */
+
     // destructor:
     ~shared_ptr();
 
     // assignment:
+    /*
+
+    clang-format off
     shared_ptr& operator=(const shared_ptr& r) noexcept;
     template<class Y> shared_ptr& operator=(const shared_ptr<Y>& r) noexcept;
     shared_ptr& operator=(shared_ptr&& r) noexcept;
@@ -53,14 +62,26 @@ public:
     // template<class Y> shared_ptr& operator=(auto_ptr<Y>&& r); // removed in C++17
     template <class Y, class D> shared_ptr& operator=(unique_ptr<Y, D>&& r);
 
+    clang-format on
+    */
+
     // modifiers:
+    /*
+    clang-format off
+
     void swap(shared_ptr& r) noexcept;
     void reset() noexcept;
     template<class Y> void reset(Y* p);
     template<class Y, class D> void reset(Y* p, D d);
     template<class Y, class D, class A> void reset(Y* p, D d, A a);
 
+    clang-format on
+    */
+
     // observers:
+    /*
+    clang-format off
+
     T* get() const noexcept;
     T& operator*() const noexcept;
     T* operator->() const noexcept;
@@ -69,6 +90,9 @@ public:
     explicit operator bool() const noexcept;
     template<class U> bool owner_before(shared_ptr<U> const& b) const noexcept;
     template<class U> bool owner_before(weak_ptr<U> const& b) const noexcept;
+
+    clang-format on
+    */
 };
 
 template<class T>
