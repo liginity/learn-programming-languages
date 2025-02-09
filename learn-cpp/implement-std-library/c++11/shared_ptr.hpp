@@ -28,11 +28,14 @@ class weak_ptr;
 class SharedCount {
    public:
     SharedCount(long refs);
+    virtual ~SharedCount();
 
     void add_shared();
     bool release_shared();
 
     long use_count();
+
+    virtual void on_zero_shared() noexcept = 0;
 
    private:
     std::atomic_long shared_owners_;
