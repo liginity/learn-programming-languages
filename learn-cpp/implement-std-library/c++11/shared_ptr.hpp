@@ -93,7 +93,8 @@ class SharedPtr {
     // constructors
     constexpr SharedPtr() noexcept : ptr_(nullptr), cntrl_(nullptr) {}
 
-    constexpr SharedPtr(std::nullptr_t) noexcept : ptr_(nullptr), cntrl_(nullptr) {}
+    constexpr SharedPtr(std::nullptr_t) noexcept
+        : ptr_(nullptr), cntrl_(nullptr) {}
 
     template <typename Y,
               typename = std::enable_if<std::is_convertible<Y*, T*>::value>>
@@ -119,6 +120,41 @@ class SharedPtr {
         if (cntrl_) {
             cntrl_->add_shared();
         }
+    }
+
+    // destructor
+    ~SharedPtr() {
+        if (cntrl_) {
+            cntrl_->release_shared();
+        }
+    }
+
+    // assignment
+    SharedPtr& operator=(const SharedPtr& r) noexcept {
+        SharedPtr(r).swap(*this);
+        return *this;
+    }
+
+    template <typename Y,
+              typename = std::enable_if<std::is_convertible<Y*, T*>::value>>
+    SharedPtr& operator=(const SharedPtr<Y>& r) noexcept {
+        SharedPtr(r).swap();
+        return *this;
+    }
+
+    // modifiers
+    void swap(SharedPtr& r) noexcept {
+        using std::swap;
+        swap(ptr_, r.ptr_);
+        swap(cntrl_, r.cntrl_);
+    }
+
+    void reset() noexcept { SharedPtr().swap(*this); }
+
+    template <typename Y,
+              typename = std::enable_if<std::is_convertible<Y*, T*>::value>>
+    void reset(Y* p) {
+        SharedPtr(p).reset(*this);
     }
 
    private:
@@ -166,8 +202,8 @@ public:
 
     // assignment:
     /*
-
     clang-format off
+
     shared_ptr& operator=(const shared_ptr& r) noexcept;
     template<class Y> shared_ptr& operator=(const shared_ptr<Y>& r) noexcept;
     shared_ptr& operator=(shared_ptr&& r) noexcept;
