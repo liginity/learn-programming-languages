@@ -26,6 +26,10 @@ class weak_ptr;
    - on_zero_shared()
 */
 class SharedCount {
+   private:
+    SharedCount(const SharedCount&);
+    SharedCount& operator=(const SharedCount&);
+
    public:
     explicit SharedCount(long refs = 0) noexcept : shared_owners_(refs) {}
 
