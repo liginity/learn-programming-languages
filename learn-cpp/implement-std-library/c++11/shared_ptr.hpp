@@ -76,6 +76,37 @@ class SharedCountCntrl : public SharedCount {
     T* data_;
 };
 
+/* NOTE
+   A simplified version of std::shared_ptr.
+   Do not support weak_ptr.
+*/
+template <typename T>
+class SharedPtr {
+   public:
+#if __cplusplus < 201703L
+    typedef T element_type;  // until C++17
+#else
+    typedef std::remove_extent_t<T> element_type;  // since C++17
+#endif
+
+    // constructors
+    constexpr SharedPtr() noexcept : ptr_(nullptr), cntrl_(nullptr) {}
+
+    template <typename Y,
+              typename = std::enable_if<std::is_convertible<Y*, T*>::value>>
+    explicit SharedPtr(Y* p) {
+        std::unique_ptr<Y> hold(p);
+        cntrl_ = new SharedCountCntrl<Y>(p);
+        ptr_ = p;
+        hold.release();
+    }
+
+
+   private:
+    element_type* ptr_;
+    SharedCountCntrl<T>* cntrl_;
+};
+
 template<class T>
 class shared_ptr
 {
