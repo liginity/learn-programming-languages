@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thread>
+#include <vector>
 
 #include "shared_ptr.hpp"
 
@@ -26,4 +27,16 @@ int main() {
     COUT("reset sp2");
     SHOW(sp1.use_count());
     SHOW(sp2.use_count());
+
+    constexpr int N = 100;
+    std::vector<std::thread> threads;
+    for (int i = 0; i < N; ++i) {
+        auto fn = [sp1]() mutable {
+            sp1.reset();
+        };
+        threads.emplace_back(fn);
+    }
+    for (auto &t : threads) {
+        t.join();
+    }
 }
