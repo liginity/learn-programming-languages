@@ -1,4 +1,6 @@
+#include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <thread>
 #include <vector>
 
@@ -30,6 +32,21 @@ int main() {
 
     constexpr int N = 100;
     std::vector<std::thread> threads;
+
+    std::shared_ptr<int> stdsp(new int(1));
+    for (int i = 0; i < N; ++i) {
+        auto fn = [stdsp]() mutable {
+            stdsp.reset();
+        };
+        threads.emplace_back(fn);
+    }
+    for (auto &t : threads) {
+        t.join();
+    }
+    threads.clear();
+    // std::exit(0);
+
+
     for (int i = 0; i < N; ++i) {
         auto fn = [sp1]() mutable {
             sp1.reset();
