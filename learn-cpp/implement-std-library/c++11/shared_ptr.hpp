@@ -27,13 +27,25 @@ class weak_ptr;
 */
 class SharedCount {
    public:
-    SharedCount(long refs);
+    explicit SharedCount(long refs = 0) noexcept : shared_owners_(refs) {}
+
     virtual ~SharedCount();
 
-    void add_shared();
-    bool release_shared();
+    void add_shared() noexcept {
+        shared_owners_.fetch_add(1, std::memory_order_relaxed);
+    }
 
-    long use_count();
+    bool release_shared() noexcept {
+        if (shared_owners_.fetch_add(-1, std::memory_order_acq_rel) == -1) {
+            on_zero_shared();
+            return true;
+        }
+        return false;
+    }
+
+    long use_count() const noexcept {
+        return shared_owners_.load(std::memory_order_relaxed) + 1;
+    }
 
     virtual void on_zero_shared() noexcept = 0;
 
