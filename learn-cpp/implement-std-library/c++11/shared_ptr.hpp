@@ -34,7 +34,7 @@ class SharedCount {
    public:
     explicit SharedCount(long refs = 0) noexcept : shared_owners_(refs) {}
 
-    virtual ~SharedCount();
+    virtual ~SharedCount() {}
 
     void add_shared() noexcept {
         shared_owners_.fetch_add(1, std::memory_order_relaxed);
