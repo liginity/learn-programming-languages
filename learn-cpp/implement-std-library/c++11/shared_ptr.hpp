@@ -57,6 +57,25 @@ class SharedCount {
     std::atomic_long shared_owners_;
 };
 
+/* SharedCountCntrl would be used as the control block inside
+   a simple implementation of shared_ptr.
+*/
+template <typename T>
+class SharedCountCntrl : public SharedCount {
+   public:
+    SharedCountCntrl(T* data) : SharedCount(), data_(data) {}
+
+    void on_zero_shared() noexcept override {
+        if (data_) {
+            delete data_;
+        }
+        delete this;
+    }
+
+   private:
+    T* data_;
+};
+
 template<class T>
 class shared_ptr
 {
