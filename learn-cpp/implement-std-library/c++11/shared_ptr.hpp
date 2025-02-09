@@ -6,6 +6,9 @@ namespace learn_cpp {
 namespace detail {
 
 template<class T>
+class weak_ptr;
+
+template<class T>
 class shared_ptr
 {
 public:
@@ -55,6 +58,43 @@ public:
     long use_count() const noexcept;
     bool unique() const noexcept;
     explicit operator bool() const noexcept;
+    template<class U> bool owner_before(shared_ptr<U> const& b) const noexcept;
+    template<class U> bool owner_before(weak_ptr<U> const& b) const noexcept;
+};
+
+template<class T>
+class weak_ptr
+{
+public:
+    typedef T element_type; // until C++17
+    typedef remove_extent_t<T> element_type; // since C++17
+
+    // constructors
+    constexpr weak_ptr() noexcept;
+    template<class Y> weak_ptr(shared_ptr<Y> const& r) noexcept;
+    weak_ptr(weak_ptr const& r) noexcept;
+    template<class Y> weak_ptr(weak_ptr<Y> const& r) noexcept;
+    weak_ptr(weak_ptr&& r) noexcept;                      // C++14
+    template<class Y> weak_ptr(weak_ptr<Y>&& r) noexcept; // C++14
+
+    // destructor
+    ~weak_ptr();
+
+    // assignment
+    weak_ptr& operator=(weak_ptr const& r) noexcept;
+    template<class Y> weak_ptr& operator=(weak_ptr<Y> const& r) noexcept;
+    template<class Y> weak_ptr& operator=(shared_ptr<Y> const& r) noexcept;
+    weak_ptr& operator=(weak_ptr&& r) noexcept;                      // C++14
+    template<class Y> weak_ptr& operator=(weak_ptr<Y>&& r) noexcept; // C++14
+
+    // modifiers
+    void swap(weak_ptr& r) noexcept;
+    void reset() noexcept;
+
+    // observers
+    long use_count() const noexcept;
+    bool expired() const noexcept;
+    shared_ptr<T> lock() const noexcept;
     template<class U> bool owner_before(shared_ptr<U> const& b) const noexcept;
     template<class U> bool owner_before(weak_ptr<U> const& b) const noexcept;
 };
