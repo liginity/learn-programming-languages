@@ -157,6 +157,27 @@ class SharedPtr {
         SharedPtr(p).reset(*this);
     }
 
+    // observers
+    T* get() const noexcept { return ptr_; }
+
+    T& operator*() const noexcept { return *ptr_; }
+
+    T* operator->() const noexcept { return ptr_; }
+
+    long use_count() const noexcept {
+        if (cntrl_) {
+            // when there is 1 shared owner, the stored count in SharedCount is
+            // 0. this is the design in llvm libc++.
+            return cntrl_->use_count() + 1;
+        } else {
+            return 0;
+        }
+    }
+
+    bool unique() const noexcept { return use_count() == 1; }
+
+    explicit operator bool() const noexcept { return ptr_ != nullptr; }
+
    private:
     element_type* ptr_;
     SharedCountCntrl<T>* cntrl_;
