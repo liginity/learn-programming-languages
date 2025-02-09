@@ -2,6 +2,7 @@
 #define LEARN_CPP_CXX11_SHARED_PTR_HPP
 
 #include <atomic>
+#include <cstddef>
 #include <memory>
 #include <type_traits>
 
@@ -92,6 +93,8 @@ class SharedPtr {
     // constructors
     constexpr SharedPtr() noexcept : ptr_(nullptr), cntrl_(nullptr) {}
 
+    constexpr SharedPtr(std::nullptr_t) noexcept : ptr_(nullptr), cntrl_(nullptr) {}
+
     template <typename Y,
               typename = std::enable_if<std::is_convertible<Y*, T*>::value>>
     explicit SharedPtr(Y* p) {
@@ -101,6 +104,22 @@ class SharedPtr {
         hold.release();
     }
 
+    template <typename Y,
+              typename = std::enable_if<std::is_convertible<Y*, T*>::value>>
+    SharedPtr(const SharedPtr<Y>& r) noexcept : ptr_(r.ptr_), cntrl_(r.cntrl_) {
+        if (cntrl_) {
+            cntrl_->add_shared();
+        }
+    }
+
+    template <typename Y,
+              typename = std::enable_if<std::is_convertible<Y*, T*>::value>>
+    SharedPtr(const SharedPtr<Y>&& r) noexcept
+        : ptr_(r.ptr_), cntrl_(r.cntrl_) {
+        if (cntrl_) {
+            cntrl_->add_shared();
+        }
+    }
 
    private:
     element_type* ptr_;
