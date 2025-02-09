@@ -1,6 +1,7 @@
 #ifndef LEARN_CPP_CXX11_SHARED_PTR_HPP
 #define LEARN_CPP_CXX11_SHARED_PTR_HPP
 
+#include <atomic>
 #include <memory>
 #include <type_traits>
 
@@ -13,6 +14,29 @@ using unique_ptr = std::unique_ptr<T, D>;
 
 template<class T>
 class weak_ptr;
+
+/*
+   data member:
+   - shared_owners_
+   methods:
+   - add_shared()
+   - release_shared()
+   - use_count()
+   virtual methods:
+   - on_zero_shared()
+*/
+class SharedCount {
+   public:
+    SharedCount(long refs);
+
+    void add_shared();
+    bool release_shared();
+
+    long use_count();
+
+   private:
+    std::atomic_long shared_owners_;
+};
 
 template<class T>
 class shared_ptr
@@ -47,6 +71,7 @@ public:
 
     clang-format on
     */
+    constexpr shared_ptr() noexcept = default;
 
     // destructor:
     ~shared_ptr();
@@ -93,6 +118,10 @@ public:
 
     clang-format on
     */
+
+    private:
+    element_type *ptr_;
+
 };
 
 template<class T>
