@@ -166,9 +166,9 @@ class SharedPtr {
 
     long use_count() const noexcept {
         if (cntrl_) {
-            // when there is 1 shared owner, the stored count in SharedCount is
-            // 0. this is the design in llvm libc++.
-            return cntrl_->use_count() + 1;
+            // when there is 1 shared owner, the returned use_count
+            // from SharedCountCntrl is 1.
+            return cntrl_->use_count();
         } else {
             return 0;
         }

@@ -30,7 +30,8 @@ int main() {
     SHOW(sp1.use_count());
     SHOW(sp2.use_count());
 
-    constexpr int N = 100;
+    // constexpr int N = 100;
+    constexpr int N = 2;
     std::vector<std::thread> threads;
 
     std::shared_ptr<int> stdsp(new int(1));
