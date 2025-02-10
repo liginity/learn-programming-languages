@@ -41,7 +41,7 @@ class SharedCount {
     }
 
     bool release_shared() noexcept {
-        if (shared_owners_.fetch_add(-1, std::memory_order_acq_rel) == -1) {
+        if (shared_owners_.fetch_add(-1, std::memory_order_acq_rel) == 0) {
             on_zero_shared();
             return true;
         }
@@ -103,6 +103,17 @@ class SharedPtr {
         cntrl_ = new SharedCountCntrl<Y>(p);
         ptr_ = p;
         hold.release();
+    }
+
+    SharedPtr(const SharedPtr& r) : ptr_(r.ptr_), cntrl_(r.cntrl_) {
+        if (cntrl_) {
+            cntrl_->add_shared();
+        }
+    }
+
+    SharedPtr(SharedPtr&& r) : ptr_(r.ptr_), cntrl_(r.cntrl_) {
+        r.ptr_ = nullptr;
+        r.cntrl_ = nullptr;
     }
 
     template <typename Y,
