@@ -30,6 +30,8 @@ int main() {
     SHOW(sp1.use_count());
     SHOW(sp2.use_count());
 
+    SHOW(sizeof(learn_cpp::detail::SharedCountCntrl<int>));
+
     constexpr int N = 100;
     std::vector<std::thread> threads;
 
