@@ -1,6 +1,7 @@
 #ifndef LEARN_CPP_CXX11_VECTOR_HPP
 #define LEARN_CPP_CXX11_VECTOR_HPP
 
+#include <cassert>
 #include <cstddef>
 #include <initializer_list>
 #include <memory>
@@ -12,6 +13,10 @@ namespace detail {
 
 inline namespace v1 {
 // NOTE v1::vector is relatively simple.
+
+#if defined(DEBUG_VECTOR)
+#define ASSERT(expr, text) assert(expr)
+#endif
 
 template <class T, class Allocator = std::allocator<T>>
 class vector {
@@ -125,12 +130,19 @@ class vector {
     const_reverse_iterator crend() const noexcept;
 
     // capacity:
-    size_type size() const noexcept;
-    size_type max_size() const noexcept;
+    size_type size() const noexcept { return end_ - begin_; }
+
+    size_type max_size() const noexcept {
+        return sizeof(size_type) / sizeof(value_type);
+    }
+
     void resize(size_type sz);
     void resize(size_type sz, const T& c);
-    size_type capacity() const noexcept;
-    bool empty() const noexcept;
+
+    size_type capacity() const noexcept { return end_cap_ - end_; }
+
+    bool empty() const noexcept { return end_ == begin_; }
+
     void reserve(size_type n);
     void shrink_to_fit();
 
@@ -145,8 +157,9 @@ class vector {
     const_reference back() const;
 
     // data access
-    T* data() noexcept;
-    const T* data() const noexcept;
+    T* data() noexcept { return begin_; }
+
+    const T* data() const noexcept { return begin_; }
 
     // modifiers:
     template <class... Args>
@@ -188,6 +201,20 @@ class vector {
     void construct_n_at_end_(size_type n);
     void clear_();
 };
+
+template <class T, class Allocator>
+typename vector<T, Allocator>::reference vector<T, Allocator>::operator[](
+    size_type n) {
+    ASSERT(n < size(), "out of range access");
+    return begin_[n];
+}
+
+template <class T, class Allocator>
+typename vector<T, Allocator>::const_reference vector<T, Allocator>::operator[](
+    size_type n) const {
+    ASSERT(n < size(), "out of range access");
+    return begin_[n];
+}
 
 // Add an alias Vector for vector.
 template <class T, class Allocator = std::allocator<T>>
