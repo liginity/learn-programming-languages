@@ -197,8 +197,10 @@ class vector {
     allocator_type get_alloc_() noexcept { return alloc_; }
 
     void allocate_n_at_end_(size_type n);
+    void ensure_size_(size_type n);
 
     void construct_n_at_end_(size_type n);
+    void construct_one_at_end_(const value_type& x);
     void clear_();
 };
 
@@ -248,6 +250,32 @@ typename vector<T, Allocator>::const_reference vector<T, Allocator>::operator[](
     size_type n) const {
     ASSERT(n < size(), "out of range access");
     return begin_[n];
+}
+
+template <class T, class Allocator>
+template <class... Args>
+void vector<T, Allocator>::emplace_back(Args&&... args) {
+    ensure_size_(size() + 1);
+    construct_one_at_end_(std::forward<Args>(args)...);
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::push_back(const T& x) {
+    ensure_size_(size() + 1);
+    construct_one_at_end_(x);
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::push_back(T&& x) {
+    ensure_size_(size() + 1);
+    construct_one_at_end_(x);
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::pop_back() {
+    std::allocator_traits<allocator_type> alloc_trait;
+    alloc_trait.destroy(get_alloc_(), end_);
+    --end_;
 }
 
 // Add an alias Vector for vector.
