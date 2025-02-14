@@ -81,7 +81,7 @@ class vector {
         end_ = begin_ + n;
     }
 
-    ~vector() {}
+    ~vector() { clear_(); }
 
     vector<T, Allocator>& operator=(const vector<T, Allocator>& x) {
         // NOTE the allocator is not propagated.
