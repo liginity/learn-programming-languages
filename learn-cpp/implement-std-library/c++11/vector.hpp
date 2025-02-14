@@ -17,6 +17,8 @@ inline namespace v1 {
 
 #if defined(DEBUG_VECTOR)
 #define ASSERT(expr, text) assert(expr)
+#else
+#define ASSERT(expr, text)
 #endif
 
 template <class T, class Allocator = std::allocator<T>>
@@ -195,7 +197,7 @@ class vector {
 
     const_pointer get_end_cap_() const noexcept { return end_cap_; }
 
-    allocator_type get_alloc_() noexcept { return alloc_; }
+    allocator_type& get_alloc_() noexcept { return alloc_; }
 
     void allocate_n_at_end_(size_type n);
     void ensure_capacity_(size_type n);
@@ -357,6 +359,8 @@ void vector<T, Allocator>::clear_() {
 // Add an alias Vector for vector.
 template <class T, class Allocator = std::allocator<T>>
 using Vector = vector<T, Allocator>;
+
+#undef ASSERT
 
 }  // namespace v1
 }  // namespace detail
