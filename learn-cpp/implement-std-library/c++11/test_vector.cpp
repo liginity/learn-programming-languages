@@ -19,10 +19,25 @@ void test_v1_vector_1() {
         assert(item == 0);
     }
 
-    vector<int> vec3 = {1, 2, 3, 4};
-    SHOW(vec3.size());
-    SHOW(vec3.capacity());
-    for (auto item : vec3) {
+    unsigned size3 = 16;
+    const vector<int> vec3(size3, 7);
+    assert(vec3.size() == size3);
+    for (int i = 0; i < size3; ++i) {
+        assert(vec3[i] == 7);
+    }
+
+    auto vec4 = vec3;
+    assert(vec4.size() == vec3.size());
+
+    vec4.push_back(9);
+    auto vec5 = std::move(vec4);
+    auto size5 = size3 + 1;
+    assert(vec5.size() == size5);
+
+    vector<int> vec6 = {1, 2, 3, 4};
+    SHOW(vec6.size());
+    SHOW(vec6.capacity());
+    for (auto item : vec6) {
         std::cout << item << ", ";
     }
     std::cout << std::endl;

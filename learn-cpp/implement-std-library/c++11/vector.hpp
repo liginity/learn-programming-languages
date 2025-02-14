@@ -69,7 +69,10 @@ class vector {
         : begin_(x.begin_),
           end_(x.end_),
           end_cap_(x.end_cap_),
-          alloc_(std::move(x.alloc_)) {}
+          alloc_(std::move(x.alloc_)) {
+        x.begin_ = x.end_ = nullptr;
+        x.end_cap_ = nullptr;
+    }
 
     vector(const vector&, const Allocator&);
     vector(vector&&, const Allocator&);
