@@ -10,6 +10,9 @@ namespace learn_cpp {
 
 namespace detail {
 
+inline namespace v1 {
+// NOTE v1::vector is relatively simple.
+
 template <class T, class Allocator = std::allocator<T>>
 class vector {
    public:
@@ -30,17 +33,45 @@ class vector {
     // clang-format on
 
     // construct/copy/destroy:
-    vector();
-    explicit vector(size_type n);
-    vector(size_type n, const T& value, const Allocator& = Allocator());
+    vector() = default;
+
+    explicit vector(size_type n) {
+        allocate_n_at_end_(n);
+        construct_n_at_end_(n);
+    }
+
+    vector(size_type n, const T& value, const Allocator& a = Allocator())
+        : alloc_(a) {
+        allocate_n_at_end_(n);
+        construct_n_at_end_(n, value);
+    }
     template <class InputIterator>
     vector(InputIterator first, InputIterator last,
            const Allocator& = Allocator());
-    vector(const vector<T, Allocator>& x);
-    vector(vector&&);
+
+    vector(const vector<T, Allocator>& x) : alloc_(x.alloc_) {
+        size_type n = x.size();
+        allocate_n_at_end_(n);
+        std::uninitialized_copy(x.begin_, x.end_, begin_);
+        end_ = begin_ + n;
+    }
+
+    vector(vector&& x)
+        : begin_(x.begin_),
+          end_(x.end_),
+          end_cap_(x.end_cap_),
+          alloc_(std::move(x.alloc_)) {}
+
     vector(const vector&, const Allocator&);
     vector(vector&&, const Allocator&);
-    vector(std::initializer_list<T>, const Allocator& = Allocator());
+
+    vector(std::initializer_list<T> ilist, const Allocator& a = Allocator())
+        : alloc_(a) {
+        size_type n = ilist.size();
+        allocate_n_at_end_(n);
+        std::uninitialized_copy_n(ilist.begin(), n, begin_);
+        end_ = begin_ + n;
+    }
 
     ~vector();
     vector<T, Allocator>& operator=(const vector<T, Allocator>& x);
@@ -113,12 +144,30 @@ class vector {
     iterator erase(const_iterator first, const_iterator last);
     void swap(vector<T, Allocator>&);
     void clear() noexcept;
+
+   private:
+    pointer begin_ = nullptr;
+    pointer end_ = nullptr;
+    // end of capacity. capacity() == end_cap_ ? (end_cap_ - end_) : 0;
+    pointer end_cap_ = nullptr;
+    allocator_type alloc_;
+
+    pointer get_end_cap_() noexcept { return end_cap_; }
+
+    const_pointer get_end_cap_() const noexcept { return end_cap_; }
+
+    allocator_type get_alloc_() noexcept { return alloc_; }
+
+    void allocate_n_at_end_(size_type n);
+
+    void construct_n_at_end_(size_type n);
 };
 
 // Add an alias Vector for vector.
 template <class T, class Allocator = std::allocator<T>>
 using Vector = vector<T, Allocator>;
 
+}  // namespace v1
 }  // namespace detail
 }  // namespace learn_cpp
 #endif
