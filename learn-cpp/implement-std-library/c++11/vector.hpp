@@ -73,15 +73,40 @@ class vector {
         end_ = begin_ + n;
     }
 
-    ~vector();
-    vector<T, Allocator>& operator=(const vector<T, Allocator>& x);
-    vector<T, Allocator>& operator=(vector<T, Allocator>&& x);
-    vector& operator=(std::initializer_list<T>);
+    ~vector() {}
+
+    vector<T, Allocator>& operator=(const vector<T, Allocator>& x) {
+        // NOTE the allocator is not propagated.
+        if (this == std::addressof(x)) {
+            return *this;
+        }
+        clear_();
+        vector temp(x);
+        swap(temp);
+    }
+
+    vector<T, Allocator>& operator=(vector<T, Allocator>&& x) {
+        // NOTE the allocator is not propagated.
+        if (this == std::addressof(x)) {
+            return *this;
+        }
+        clear_();
+        vector temp(std::move(x));
+        swap(temp);
+    }
+
+    vector& operator=(std::initializer_list<T> ilist) {
+        // NOTE the allocator is not propagated.
+        clear_();
+        vector temp(ilist);
+        swap(temp);
+    }
     template <class InputIterator>
     void assign(InputIterator first, InputIterator last);
     void assign(size_type n, const T& t);
     void assign(std::initializer_list<T>);
-    allocator_type get_allocator() const noexcept;
+
+    allocator_type get_allocator() const noexcept { return alloc_(); }
 
     // iterators:
     iterator begin() noexcept;
@@ -161,6 +186,7 @@ class vector {
     void allocate_n_at_end_(size_type n);
 
     void construct_n_at_end_(size_type n);
+    void clear_();
 };
 
 // Add an alias Vector for vector.
