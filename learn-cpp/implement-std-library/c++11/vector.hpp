@@ -62,6 +62,7 @@ class vector {
         allocate_n_at_end_(n);
         std::uninitialized_copy(x.begin_, x.end_, begin_);
         end_ = begin_ + n;
+        end_cap_ = begin_ + n;
     }
 
     vector(vector&& x)
@@ -79,6 +80,7 @@ class vector {
         allocate_n_at_end_(n);
         std::uninitialized_copy_n(ilist.begin(), n, begin_);
         end_ = begin_ + n;
+        end_cap_ = begin_ + n;
     }
 
     ~vector() { clear_(); }
@@ -142,7 +144,7 @@ class vector {
     void resize(size_type sz);
     void resize(size_type sz, const T& c);
 
-    size_type capacity() const noexcept { return end_cap_ - end_; }
+    size_type capacity() const noexcept { return end_cap_ - begin_; }
 
     bool empty() const noexcept { return end_ == begin_; }
 
