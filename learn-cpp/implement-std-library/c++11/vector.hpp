@@ -203,6 +203,40 @@ class vector {
 };
 
 template <class T, class Allocator>
+typename vector<T, Allocator>::iterator vector<T, Allocator>::begin() noexcept {
+    return begin_;
+}
+
+template <class T, class Allocator>
+typename vector<T, Allocator>::const_iterator vector<T, Allocator>::begin()
+    const noexcept {
+    return begin_;
+}
+
+template <class T, class Allocator>
+typename vector<T, Allocator>::iterator vector<T, Allocator>::end() noexcept {
+    return end_;
+}
+
+template <class T, class Allocator>
+typename vector<T, Allocator>::const_iterator vector<T, Allocator>::end()
+    const noexcept {
+    return end_;
+}
+
+template <class T, class Allocator>
+typename vector<T, Allocator>::const_iterator vector<T, Allocator>::cbegin()
+    const noexcept {
+    return begin_;
+}
+
+template <class T, class Allocator>
+typename vector<T, Allocator>::const_iterator vector<T, Allocator>::cend()
+    const noexcept {
+    return end_;
+}
+
+template <class T, class Allocator>
 typename vector<T, Allocator>::reference vector<T, Allocator>::operator[](
     size_type n) {
     ASSERT(n < size(), "out of range access");
