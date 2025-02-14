@@ -198,10 +198,14 @@ class vector {
     allocator_type get_alloc_() noexcept { return alloc_; }
 
     void allocate_n_at_end_(size_type n);
-    void ensure_size_(size_type n);
+    void ensure_capacity_(size_type n);
 
-    void construct_n_at_end_(size_type n);
-    void construct_one_at_end_(const value_type& x);
+    template <class... Args>
+    void construct_n_at_end_(size_type n, Args&&... args);
+    // void construct_n_at_end_(size_type n);
+    template <class... Args>
+    void construct_one_at_end_(Args&&... args);
+    // void construct_one_at_end_(const value_type& x);
     void clear_();
 };
 
@@ -256,19 +260,19 @@ typename vector<T, Allocator>::const_reference vector<T, Allocator>::operator[](
 template <class T, class Allocator>
 template <class... Args>
 void vector<T, Allocator>::emplace_back(Args&&... args) {
-    ensure_size_(size() + 1);
+    ensure_capacity_(size() + 1);
     construct_one_at_end_(std::forward<Args>(args)...);
 }
 
 template <class T, class Allocator>
 void vector<T, Allocator>::push_back(const T& x) {
-    ensure_size_(size() + 1);
+    ensure_capacity_(size() + 1);
     construct_one_at_end_(x);
 }
 
 template <class T, class Allocator>
 void vector<T, Allocator>::push_back(T&& x) {
-    ensure_size_(size() + 1);
+    ensure_capacity_(size() + 1);
     construct_one_at_end_(x);
 }
 
@@ -277,6 +281,57 @@ void vector<T, Allocator>::pop_back() {
     std::allocator_traits<allocator_type> alloc_trait;
     alloc_trait.destroy(get_alloc_(), end_);
     --end_;
+}
+
+// private methods
+
+template <class T, class Allocator>
+void vector<T, Allocator>::allocate_n_at_end_(size_type n) {
+    ASSERT(begin_ == nullptr && end_ == nullptr,
+           "should call this for vector that has no allocation");
+
+    begin_ = end_ =
+        std::allocator_traits<allocator_type>{}.allocate(get_alloc_(), n);
+    end_cap_ = begin_ + n;
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::ensure_capacity_(size_type n) {
+    if (!(capacity() < n)) {
+        return;
+    }
+    // TODO
+}
+
+// assume capacity is enough.
+template <class T, class Allocator>
+template <class... Args>
+void vector<T, Allocator>::construct_n_at_end_(size_type n, Args&&... args) {
+    std::allocator_traits<allocator_type> alloc_trait;
+    for (int i = 0; i < n; ++i) {
+        alloc_trait.construct(get_alloc_(), end_, std::forward<Args>(args)...);
+        ++end_;
+    }
+}
+
+// assume capacity is enough.
+template <class T, class Allocator>
+template <class... Args>
+void vector<T, Allocator>::construct_one_at_end_(Args&&... args) {
+    std::allocator_traits<allocator_type> alloc_trait;
+    alloc_trait.construct(get_alloc_(), end_, std::forward<Args>(args)...);
+    ++end_;
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::clear_() {
+    std::allocator_traits<allocator_type> alloc_trait;
+    for (auto p = begin_; p != end_; ++p) {
+        alloc_trait.destroy(get_alloc_(), p);
+    }
+    alloc_trait.deallocate(get_alloc_(), begin_, capacity());
+    begin_ = end_ = nullptr;
+    end_cap_ = nullptr;
 }
 
 // Add an alias Vector for vector.
