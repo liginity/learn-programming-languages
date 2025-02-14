@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstddef>
 #include <initializer_list>
+#include <limits>
 #include <memory>
 #include <type_traits>
 
@@ -133,7 +134,7 @@ class vector {
     size_type size() const noexcept { return end_ - begin_; }
 
     size_type max_size() const noexcept {
-        return sizeof(size_type) / sizeof(value_type);
+        return std::numeric_limits<size_type>::max() / sizeof(value_type);
     }
 
     void resize(size_type sz);
