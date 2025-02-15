@@ -45,13 +45,13 @@ class vector {
     vector() = default;
 
     explicit vector(size_type n) {
-        allocate_n_at_end_(n);
+        allocate_mem_(n);
         construct_n_at_end_(n);
     }
 
     vector(size_type n, const T& value, const Allocator& a = Allocator())
         : alloc_(a) {
-        allocate_n_at_end_(n);
+        allocate_mem_(n);
         construct_n_at_end_(n, value);
     }
     template <class InputIterator>
@@ -60,7 +60,7 @@ class vector {
 
     vector(const vector<T, Allocator>& x) : alloc_(x.alloc_) {
         size_type n = x.size();
-        allocate_n_at_end_(n);
+        allocate_mem_(n);
         std::uninitialized_copy(x.begin_, x.end_, begin_);
         end_ = begin_ + n;
         end_cap_ = begin_ + n;
@@ -81,7 +81,7 @@ class vector {
     vector(std::initializer_list<T> ilist, const Allocator& a = Allocator())
         : alloc_(a) {
         size_type n = ilist.size();
-        allocate_n_at_end_(n);
+        allocate_mem_(n);
         std::uninitialized_copy_n(ilist.begin(), n, begin_);
         end_ = begin_ + n;
         end_cap_ = begin_ + n;
@@ -90,8 +90,7 @@ class vector {
     ~vector() {
         if (begin_ != nullptr) {
             clear_();
-            std::allocator_traits<allocator_type>::deallocate(
-                get_alloc_(), begin_, capacity());
+            deallocate_mem_();
         }
     }
 
@@ -111,8 +110,7 @@ class vector {
         }
         if (begin_ != nullptr) {
             clear_();
-            std::allocator_traits<allocator_type>::deallocate(
-                get_alloc_(), begin_, capacity());
+            deallocate_mem_();
         }
         begin_ = x.begin_;
         end_ = x.end_;
@@ -217,7 +215,13 @@ class vector {
 
     allocator_type& get_alloc_() noexcept { return alloc_; }
 
-    void allocate_n_at_end_(size_type n);
+    /** Allocate memory for n value_type.
+        This is used mostly at construction.
+     */
+    void allocate_mem_(size_type n);
+    /** Deallocate memory. Set data members to nullptr.
+     */
+    void deallocate_mem_();
     void ensure_capacity_(size_type n);
     size_type suggest_capacity_(size_type at_least_cap);
 
@@ -344,13 +348,21 @@ void vector<T, Allocator>::clear() noexcept {
 // private methods
 
 template <class T, class Allocator>
-void vector<T, Allocator>::allocate_n_at_end_(size_type n) {
+void vector<T, Allocator>::allocate_mem_(size_type n) {
     ASSERT(begin_ == nullptr && end_ == nullptr,
            "should call this for vector that has no allocation");
 
     begin_ = end_ =
         std::allocator_traits<allocator_type>{}.allocate(get_alloc_(), n);
     end_cap_ = begin_ + n;
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::deallocate_mem_() {
+    std::allocator_traits<allocator_type>::deallocate(get_alloc_(), begin_,
+                                                      capacity());
+    begin_ = end_ = nullptr;
+    end_cap_ = nullptr;
 }
 
 template <class T, class Allocator>
@@ -366,7 +378,7 @@ void vector<T, Allocator>::ensure_capacity_(size_type n) {
         // NOTE Could use move here
         std::uninitialized_copy_n(begin_, old_size, new_begin_);
         clear_();
-        alloc_trait.deallocate(get_alloc_(), begin_, capacity());
+        deallocate_mem_();
     }
     begin_ = new_begin_;
     end_ = begin_ + old_size;
