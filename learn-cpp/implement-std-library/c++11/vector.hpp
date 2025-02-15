@@ -214,7 +214,7 @@ class vector {
     template <class... Args>
     void construct_one_at_end_(Args&&... args);
     // void construct_one_at_end_(const value_type& x);
-    void clear_();
+    void clear_() noexcept;
 };
 
 template <class T, class Allocator>
@@ -249,6 +249,27 @@ template <class T, class Allocator>
 typename vector<T, Allocator>::const_iterator vector<T, Allocator>::cend()
     const noexcept {
     return end_;
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::resize(size_type sz) {
+    auto old_size = size();
+    if (sz == old_size) {
+        return;
+    }
+    std::allocator_traits<allocator_type> alloc_trait;
+    if (sz > old_size) {
+        ensure_capacity_(sz);
+        for (auto i = old_size; i < sz; ++i) {
+            alloc_trait.construct(get_alloc_(), end_);
+            ++end_;
+        }
+        return;
+    }
+    // sz < old_size
+    for (auto i = sz; i < old_size; ++i) {
+        alloc_trait.destroy(get_alloc_(), --end_);
+    }
 }
 
 template <class T, class Allocator>
@@ -291,6 +312,18 @@ void vector<T, Allocator>::pop_back() {
     --end_;
 }
 
+template <class T, class Allocator>
+void vector<T, Allocator>::swap(vector& x) {
+    using std::swap;
+    swap(begin_, x.begin_);
+    swap(end_, x.end_);
+    swap(end_cap_, x.end_cap_);
+    swap(alloc_, x.alloc_);
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::clear() noexcept { clear_(); }
+
 // private methods
 
 template <class T, class Allocator>
@@ -312,6 +345,7 @@ void vector<T, Allocator>::ensure_capacity_(size_type n) {
     auto new_capacity = suggest_size(n);
     std::allocator_traits<allocator_type> alloc_trait;
     pointer new_begin_ = alloc_trait.allocate(get_alloc_(), new_capacity);
+    // NOTE Could use move here
     std::uninitialized_copy_n(begin_, old_size, new_begin_);
     clear_();
     begin_ = new_begin_;
@@ -351,7 +385,7 @@ void vector<T, Allocator>::construct_one_at_end_(Args&&... args) {
 }
 
 template <class T, class Allocator>
-void vector<T, Allocator>::clear_() {
+void vector<T, Allocator>::clear_() noexcept {
     std::allocator_traits<allocator_type> alloc_trait;
     for (auto p = begin_; p != end_; ++p) {
         alloc_trait.destroy(get_alloc_(), p);
