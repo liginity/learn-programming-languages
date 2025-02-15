@@ -362,10 +362,12 @@ void vector<T, Allocator>::ensure_capacity_(size_type n) {
     auto new_capacity = suggest_capacity_(n);
     std::allocator_traits<allocator_type> alloc_trait;
     pointer new_begin_ = alloc_trait.allocate(get_alloc_(), new_capacity);
-    // NOTE Could use move here
-    std::uninitialized_copy_n(begin_, old_size, new_begin_);
-    clear_();
-    alloc_trait.deallocate(get_alloc_(), begin_, capacity());
+    if (begin_ != nullptr) {
+        // NOTE Could use move here
+        std::uninitialized_copy_n(begin_, old_size, new_begin_);
+        clear_();
+        alloc_trait.deallocate(get_alloc_(), begin_, capacity());
+    }
     begin_ = new_begin_;
     end_ = begin_ + old_size;
     end_cap_ = begin_ + new_capacity;
