@@ -206,7 +206,7 @@ class vector {
 
     void allocate_n_at_end_(size_type n);
     void ensure_capacity_(size_type n);
-    size_type suggest_size(size_type at_least_size);
+    size_type suggest_capacity_(size_type at_least_cap);
 
     template <class... Args>
     void construct_n_at_end_(size_type n, Args&&... args);
@@ -342,7 +342,7 @@ void vector<T, Allocator>::ensure_capacity_(size_type n) {
         return;
     }
     auto old_size = size();
-    auto new_capacity = suggest_size(n);
+    auto new_capacity = suggest_capacity_(n);
     std::allocator_traits<allocator_type> alloc_trait;
     pointer new_begin_ = alloc_trait.allocate(get_alloc_(), new_capacity);
     // NOTE Could use move here
@@ -354,14 +354,14 @@ void vector<T, Allocator>::ensure_capacity_(size_type n) {
 }
 
 template <class T, class Allocator>
-typename vector<T, Allocator>::size_type vector<T, Allocator>::suggest_size(
-    size_type at_least_size) {
+typename vector<T, Allocator>::size_type vector<T, Allocator>::suggest_capacity_(
+    size_type at_least_cap) {
     //
-    auto n = size();
-    if (at_least_size < n) {
+    auto n = capacity();
+    if (at_least_cap < n) {
         return n;
     }
-    return std::max(2 * n, at_least_size);
+    return std::max(2 * n, at_least_cap);
 }
 
 // assume capacity is enough.
