@@ -53,6 +53,10 @@ void test_v1_vector_2() {
     using std::string;
 
     vector<string> vec1{};
+    vec1.push_back("test");
+    assert(vec1.size() == 1);
+    assert(vec1[0] == "test");
+
     unsigned size2 = 8;
     vector<string> vec2(size2);
 
