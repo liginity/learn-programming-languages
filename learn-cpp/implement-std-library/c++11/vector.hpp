@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstddef>
 #include <initializer_list>
+#include <iterator>
 #include <limits>
 #include <memory>
 #include <type_traits>
@@ -86,16 +87,21 @@ class vector {
         end_cap_ = begin_ + n;
     }
 
-    ~vector() { clear_(); }
+    ~vector() {
+        if (begin_ != nullptr) {
+            clear_();
+            std::allocator_traits<allocator_type>::deallocate(
+                get_alloc_(), begin_, capacity());
+        }
+    }
 
     vector<T, Allocator>& operator=(const vector<T, Allocator>& x) {
         // NOTE the allocator is not propagated.
         if (this == std::addressof(x)) {
             return *this;
         }
-        clear_();
-        vector temp(x);
-        swap(temp);
+        auto n = x.size();
+        assign_n_(x.begin_, n);
     }
 
     vector<T, Allocator>& operator=(vector<T, Allocator>&& x) {
@@ -103,16 +109,23 @@ class vector {
         if (this == std::addressof(x)) {
             return *this;
         }
-        clear_();
-        vector temp(std::move(x));
-        swap(temp);
+        if (begin_ != nullptr) {
+            clear_();
+            std::allocator_traits<allocator_type>::deallocate(
+                get_alloc_(), begin_, capacity());
+        }
+        begin_ = x.begin_;
+        end_ = x.end_;
+        end_cap_ = x.end_cap_;
+        alloc_ = std::move(x.alloc_);
+        x.begin_ = x.end_ = nullptr;
+        x.end_cap_ = nullptr;
     }
 
     vector& operator=(std::initializer_list<T> ilist) {
         // NOTE the allocator is not propagated.
-        clear_();
-        vector temp(ilist);
-        swap(temp);
+        auto n = ilist.size();
+        assign_n_(ilist.begin(), n);
     }
     template <class InputIterator>
     void assign(InputIterator first, InputIterator last);
@@ -215,6 +228,8 @@ class vector {
     void construct_one_at_end_(Args&&... args);
     // void construct_one_at_end_(const value_type& x);
     void clear_() noexcept;
+    template <typename InputIterator>
+    void assign_n_(InputIterator first, size_type n);
 };
 
 template <class T, class Allocator>
@@ -322,7 +337,9 @@ void vector<T, Allocator>::swap(vector& x) {
 }
 
 template <class T, class Allocator>
-void vector<T, Allocator>::clear() noexcept { clear_(); }
+void vector<T, Allocator>::clear() noexcept {
+    clear_();
+}
 
 // private methods
 
@@ -348,14 +365,15 @@ void vector<T, Allocator>::ensure_capacity_(size_type n) {
     // NOTE Could use move here
     std::uninitialized_copy_n(begin_, old_size, new_begin_);
     clear_();
+    alloc_trait.deallocate(get_alloc_(), begin_, capacity());
     begin_ = new_begin_;
     end_ = begin_ + old_size;
     end_cap_ = begin_ + new_capacity;
 }
 
 template <class T, class Allocator>
-typename vector<T, Allocator>::size_type vector<T, Allocator>::suggest_capacity_(
-    size_type at_least_cap) {
+typename vector<T, Allocator>::size_type
+vector<T, Allocator>::suggest_capacity_(size_type at_least_cap) {
     //
     auto n = capacity();
     if (at_least_cap < n) {
@@ -386,13 +404,26 @@ void vector<T, Allocator>::construct_one_at_end_(Args&&... args) {
 
 template <class T, class Allocator>
 void vector<T, Allocator>::clear_() noexcept {
+    if (begin_ == nullptr) {
+        return;
+    }
     std::allocator_traits<allocator_type> alloc_trait;
     for (auto p = begin_; p != end_; ++p) {
         alloc_trait.destroy(get_alloc_(), p);
     }
-    alloc_trait.deallocate(get_alloc_(), begin_, capacity());
-    begin_ = end_ = nullptr;
-    end_cap_ = nullptr;
+}
+
+template <class T, class Allocator>
+template <typename InputIterator>
+void vector<T, Allocator>::assign_n_(InputIterator first, size_type n) {
+    clear_();
+    ensure_capacity_(n);
+    for (size_type i = 0; i < n; ++i) {
+        std::allocator_traits<allocator_type>::consturct(get_alloc_(), end_,
+                                                         *first);
+        ++end_;
+        ++first;
+    }
 }
 
 // Add an alias Vector for vector.
