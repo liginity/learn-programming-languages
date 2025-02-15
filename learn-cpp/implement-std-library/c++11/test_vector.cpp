@@ -10,7 +10,10 @@
 void test_v1_vector_1();
 void test_v1_vector_2();
 
-int main() { test_v1_vector_1(); }
+int main() {
+    test_v1_vector_1();
+    test_v1_vector_2();
+}
 
 void test_v1_vector_1() {
     using learn_cpp::detail::v1::vector;
