@@ -13,16 +13,8 @@ public:
     typedef int* iterator;
 };
 
-/*
-// not working
-template <typename T, typename = void>
-struct has_const_iterator : std::false_type {};
 
-template <typename T, typename = decltype(std::declval<typename T::const_iterator>())>
-struct has_const_iterator : std::true_type {};
- */
-
-
+// implement std::void_t in c++17.
 // // this implementation is not correct!!!
 // template <typename... Ts>
 // struct void_t {
@@ -33,6 +25,15 @@ struct has_const_iterator : std::true_type {};
 template <typename...>
 using void_t = void;
 
+
+/*
+// not working
+template <typename T, typename = void>
+struct has_const_iterator : std::false_type {};
+
+template <typename T, typename = decltype(std::declval<typename T::const_iterator>())>
+struct has_const_iterator : std::true_type {};
+ */
 
 template <typename T, typename = void>
 struct has_const_iterator : std::false_type {};
@@ -48,16 +49,7 @@ struct has_const_iterator : std::false_type {};
 template <typename T>
 struct has_const_iterator<T, void_t<typename T::const_iterator>> : std::true_type {};
 
-
-// // Primary template (fallback case: false)
-// template <typename, typename = void>
-// struct has_const_iterator : std::false_type {};
-
-// // Specialization for types that have a member type `const_iterator`
-// template <typename T>
-// struct has_const_iterator<T, void_t<typename T::const_iterator>> : std::true_type {};
-
-
+// // the following pair is not working
 // template <typename T, typename = void_t<typename T::const_iterator>>
 // struct has_const_iterator : std::true_type {};
 
