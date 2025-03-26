@@ -1,7 +1,8 @@
 import inspect
 import pprint
 # import sys
-# from typing import Type
+import types
+from typing import Optional
 
 
 def f() -> None:
@@ -37,8 +38,10 @@ print("-" * 80)
 def f2() -> None:
     # frame: type(sys._getframe()) = inspect.currentframe()
     # frame: Type[sys._getframe()] = inspect.currentframe()
-    frame = inspect.currentframe()
-    print(f"{frame.f_back.f_code.co_name = }")  # type: ignore
+    frame: Optional[types.FrameType] = inspect.currentframe()
+    assert frame is not None
+    # NOTE type hint is not working well, mypy complaints.
+    print(f"{frame.f_back.f_code.co_name = }")
 
 
 def g2():
